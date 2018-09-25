@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>eVision.Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+  </head>
+  <body>
+    <header class="centered-text">
+      <h3>eVision.Control</h3>
+    </header>
+    <main>
+    </main>
+    <div style="max-width: 550px">
+      <canvas id="input"></canvas>
+      <canvas id="mask"></canvas>
+    </div>
+
+    <script src="./image-helpers.js"></script>
+    <script>
+      // var cv = require('opencv4nodejs');
+
+      var path = require('path');
+      var fs = require('fs');
+
+      const {
+        cv,
+        getDataFilePath,
+        drawGreenRect
+      } = require('./utils');
+
+      function getObjects(file) {
+        const image = cv.imread(path.resolve('assets', file));
+
+        const classifier = new cv.CascadeClassifier( path.resolve('app', 'haarcascades', 'haarcascade_frontalface_alt2.xml') );
+
+        // detect faces
+        const { objects, numDetections } = classifier.detectMultiScale(image.bgrToGray());
+        
+        return { objects, numDetections, image }
+      }
+
+      function drawImages(objects) {
+        // if (!objects.length) {
+        //   throw new Error('No faces detected!');
+        // }
+
+        const numDetectionsTh = 10;
+        objects.objects.forEach((rect, i) => {
+          const thickness = objects.numDetections[i] < numDetectionsTh ? 1 : 2;
+          drawGreenRect(objects.image, rect, { thickness });
+        });
+        renderImage(objects.image, document.getElementById('input'));
+      }
+
+      let countFiles = 460;
+      let idFile = 1;
+
+      setInterval( () => { 
+        idFile++;
+        if (idFile > countFiles) {
+          idFile = 1;
+        }
+        let fileName = 'image' + idFile + '.jpg';
+        let objects = getObjects(fileName);
+        drawImages(objects);
+      }, 0 );
+    </script>
+    <script>
+      // var cv = require('opencv4nodejs');
+
+      var path = require('path');
+      var fs = require('fs');
+// <!-- 
+//       const {
+//         cv,
+//         getDataFilePath
+//       } = require('./utils');
+
+//       const { runVideoFaceDetection } = require('./commons');
+
+//       // const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
+//       const classifier = new cv.CascadeClassifier( path.resolve('app', 'haarcascades', 'haarcascade_frontalface_alt2.xml') );
+
+//       // const webcamPort = 0;
+//       // const webcamPort = 'people.mp4';
+
+//       const videoFile = getDataFilePath('people.mp4');
+
+//       function detectFaces(img) {
+//         // restrict minSize and scaleFactor for faster processing
+//         const options = {
+//           minSize: new cv.Size(100, 100),
+//           scaleFactor: 1.2,
+//           minNeighbors: 10
+//         };
+//         return classifier.detectMultiScale(img.bgrToGray(), options).objects;
+//       }
+
+//       runVideoFaceDetection(videoFile, detectFaces); -->
+
+        // const {
+        //   cv,
+        //   getDataFilePath
+        // } = require('./utils');
+
+        // const { runVideoFaceDetection } = require('./commons');
+
+        // const videoFile = getDataFilePath('people.mp4');
+
+        // // const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
+        // const classifier = new cv.CascadeClassifier( path.resolve('app', 'haarcascades', 'haarcascade_frontalface_alt2.xml') );
+
+        // function detectFaces(img) {
+        //   console.log('detectFaces');
+        //   // restrict minSize and scaleFactor for faster processing
+        //   const options = {
+        //     // minSize: new cv.Size(40, 40),
+        //     // scaleFactor: 1.2,
+        //     scaleFactor: 1.1,
+        //     minNeighbors: 10
+        //   };
+        //   return classifier.detectMultiScale(img.bgrToGray(), options).objects;
+        // }
+
+        // runVideoFaceDetection(videoFile, detectFaces);
+    </script>
+  </body>
+</html>
